@@ -5,23 +5,22 @@ A small, local-only web dashboard for a hedge fund using Interactive Brokers and
 - **IB**: connects to a running IB Gateway via the TWS API (`ib_async`) and reads every sub-account under your Financial Advisor master login.
 - **Schwab / thinkorswim** (Phase 2): live quote lookup via `schwab-py`.
 
-The app runs entirely on `localhost` — no auth, no TLS, nothing leaves the machine. A static landing page is published to GitHub Pages for distribution only.
+The app runs entirely on `localhost` — no auth, no TLS, nothing leaves the machine.
 
-## Quick start
+## Download
 
-```bash
-# install
-pip install -e .
+One-click launchers (no Python install required):
 
-# start IB Gateway (paper port 4002 by default) and enable API access:
-#   Configure -> Settings -> API -> Enable ActiveX and Socket Clients
+- **macOS** — [PaleoLeon-mac.zip](https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-mac.zip)
+- **Windows** — [PaleoLeon-windows.zip](https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-windows.zip)
+- **Linux** — [PaleoLeon-linux.zip](https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-linux.zip)
 
-# run
-paleoleon
-# or: uvicorn app.main:app --reload
-```
+Unzip and double-click. First run takes ~30 s to set up (downloads [`uv`](https://docs.astral.sh/uv/), Python, and the app); later runs are instant.
 
-Then visit <http://localhost:8000>.
+- macOS: right-click → **Open** the first time to bypass Gatekeeper.
+- Windows: click **More info → Run anyway** if SmartScreen warns.
+
+You also need [IB Gateway](https://www.interactivebrokers.com/en/trading/ibgateway-stable.php) running locally with API access enabled (Configure → Settings → API → **Enable ActiveX and Socket Clients**, port 4002 for paper / 4001 for live).
 
 ## Pages
 
@@ -30,9 +29,11 @@ Then visit <http://localhost:8000>.
 | `/` | Firm summary: NAV, cash, PnL, top positions, exposure |
 | `/accounts/{id}` | Drill-in for one sub-account |
 | `/settings/accounts` | Pick which sub-accounts show, give them labels |
-| `/quote` | Live quote from Schwab (requires Phase 2 deps + creds) |
+| `/quote` | Live quote from Schwab (Phase 2; requires setup below) |
 
-## Config (env vars)
+## Configuration
+
+Environment variables (all optional):
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
@@ -43,20 +44,36 @@ Then visit <http://localhost:8000>.
 | `PALEOLEON_REFRESH_SECONDS` | `15` | Dashboard auto-refresh |
 | `PALEOLEON_HOME` | `~/.paleoleon` | Settings & Schwab token directory |
 
-## Schwab / thinkorswim (Phase 2)
+Account labels and Schwab credentials persist to `~/.paleoleon/settings.json`.
+
+## Schwab / thinkorswim quotes (Phase 2)
 
 1. Register an app at <https://developer.schwab.com>.
-2. `pip install -e '.[schwab]'`
-3. Open `/quote`, save app key + secret. First quote triggers the OAuth flow once; refresh token is cached at `~/.paleoleon/schwab_token.json`.
+2. Open `/quote` in the dashboard, paste the app key + secret, save.
+3. First quote lookup triggers the OAuth flow once; the refresh token is cached at `~/.paleoleon/schwab_token.json`.
 
-## Dev
+## Run from source (advanced)
+
+If you'd rather skip the launcher:
 
 ```bash
+pip install git+https://github.com/ms3001/PaleoLeon.git
+paleoleon
+# or: uvicorn app.main:app --reload
+```
+
+Open <http://localhost:8000>.
+
+## Develop
+
+```bash
+git clone https://github.com/ms3001/PaleoLeon.git
+cd PaleoLeon
 pip install -e '.[dev,schwab]'
 pytest
 ruff check .
 ```
 
-## Landing page
+## Releasing
 
-`docs/index.html` is published to GitHub Pages via `.github/workflows/pages.yml` on every push to `main`. After the first deploy, enable Pages in repo settings → Pages → Source: GitHub Actions.
+Push a tag — `git tag v0.3.0 && git push origin v0.3.0` — and the `Release launchers` workflow zips the launcher scripts and attaches them to the GitHub Release. The `/releases/latest/download/...` URLs in the Download section above always point at the newest release.
