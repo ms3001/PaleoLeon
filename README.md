@@ -11,9 +11,9 @@ The app runs entirely on `localhost` — no auth, no TLS, nothing leaves the mac
 
 One-click launchers (no Python install required):
 
-- **macOS** — [PaleoLeon-mac.zip](https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-mac.zip)
-- **Windows** — [PaleoLeon-windows.zip](https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-windows.zip)
-- **Linux** — [PaleoLeon-linux.zip](https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-linux.zip)
+- **macOS** — [PaleoLeon-mac.zip](https://github.com/ms3001/PaleoLeon/raw/main/assets/PaleoLeon-mac.zip)
+- **Windows** — [PaleoLeon-windows.zip](https://github.com/ms3001/PaleoLeon/raw/main/assets/PaleoLeon-windows.zip)
+- **Linux** — [PaleoLeon-linux.zip](https://github.com/ms3001/PaleoLeon/raw/main/assets/PaleoLeon-linux.zip)
 
 Unzip and double-click. First run takes ~30 s to set up (downloads [`uv`](https://docs.astral.sh/uv/), Python, and the app); later runs are instant.
 
@@ -76,4 +76,14 @@ ruff check .
 
 ## Releasing
 
-Push a tag — `git tag v0.3.0 && git push origin v0.3.0` — and the `Release launchers` workflow zips the launcher scripts and attaches them to the GitHub Release. The `/releases/latest/download/...` URLs in the Download section above always point at the newest release.
+The launcher zips under `assets/` are committed directly so the README links work without any Actions-driven release pipeline. To cut a new build:
+
+```bash
+chmod +x launcher/PaleoLeon.command launcher/PaleoLeon.sh
+(cd launcher && zip ../assets/PaleoLeon-mac.zip PaleoLeon.command)
+(cd launcher && zip ../assets/PaleoLeon-linux.zip PaleoLeon.sh)
+(cd launcher && zip ../assets/PaleoLeon-windows.zip PaleoLeon.bat)
+git add assets/ && git commit -m "Refresh launcher zips" && git push
+```
+
+A `Release launchers` workflow exists in `.github/workflows/release.yml` that does the same thing on `git tag v*` and attaches the zips to the GitHub Release — useful once your Actions billing is unlocked.
