@@ -1,0 +1,37 @@
+name: Release launchers
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pack macOS zip
+        run: |
+          chmod +x launcher/PaleoLeon.command
+          (cd launcher && zip ../PaleoLeon-mac.zip PaleoLeon.command)
+
+      - name: Pack Linux zip
+        run: |
+          chmod +x launcher/PaleoLeon.sh
+          (cd launcher && zip ../PaleoLeon-linux.zip PaleoLeon.sh)
+
+      - name: Pack Windows zip
+        run: (cd launcher && zip ../PaleoLeon-windows.zip PaleoLeon.bat)
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            PaleoLeon-mac.zip
+            PaleoLeon-linux.zip
+            PaleoLeon-windows.zip
+          generate_release_notes: true

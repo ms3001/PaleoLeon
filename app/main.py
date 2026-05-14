@@ -35,14 +35,29 @@ app.include_router(quote.router)
 
 
 def run() -> None:
-    """Console entry point: launch uvicorn and open a browser."""
+    """Console entry point: launch uvicorn and open a browser once it's listening."""
+    import threading
+    import time
+    import urllib.request
+
     import uvicorn
 
     url = f"http://{APP_HOST}:{APP_PORT}/"
-    try:
-        webbrowser.open(url)
-    except Exception:
-        pass
+
+    def open_when_ready() -> None:
+        for _ in range(40):
+            try:
+                urllib.request.urlopen(url, timeout=0.25).close()
+            except Exception:
+                time.sleep(0.25)
+                continue
+            try:
+                webbrowser.open(url)
+            except Exception:
+                pass
+            return
+
+    threading.Thread(target=open_when_ready, daemon=True).start()
     uvicorn.run("app.main:app", host=APP_HOST, port=APP_PORT, reload=False)
 
 
