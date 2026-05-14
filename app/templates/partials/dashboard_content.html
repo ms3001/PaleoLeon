@@ -1,0 +1,107 @@
+<div id="dashboard-content"
+     hx-get="/partials/dashboard"
+     hx-trigger="every {{ refresh_seconds }}s"
+     hx-swap="outerHTML">
+  <hgroup>
+    <h2>Firm summary</h2>
+    <p>{{ totals.account_count }} account{{ '' if totals.account_count == 1 else 's' }} ·
+       updated {{ taken_at }}</p>
+  </hgroup>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="label">Net liquidation</div>
+      <div class="value">{{ totals.net_liquidation | money }}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Cash</div>
+      <div class="value">{{ totals.total_cash | money }}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Gross position value</div>
+      <div class="value">{{ totals.gross_position_value | money }}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Unrealized PnL</div>
+      <div class="value {{ 'pos' if totals.unrealized_pnl >= 0 else 'neg' }}">
+        {{ totals.unrealized_pnl | money }}
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="label">Realized PnL</div>
+      <div class="value {{ 'pos' if totals.realized_pnl >= 0 else 'neg' }}">
+        {{ totals.realized_pnl | money }}
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem;">Accounts</h3>
+  {% if not accounts %}
+    <p>No accounts to show. <a href="/settings/accounts">Configure accounts</a>.</p>
+  {% else %}
+  <div class="account-grid">
+    {% for a in accounts %}
+      <a class="account-card" href="/accounts/{{ a.account }}">
+        <div><strong>{{ a.display_name }}</strong></div>
+        <div><small><code>{{ a.account }}</code></small></div>
+        <div class="nav">{{ a.net_liquidation | money }}</div>
+        <div>
+          <small>Unrealized
+            <span class="{{ 'pos' if a.unrealized_pnl >= 0 else 'neg' }}">
+              {{ a.unrealized_pnl | money }}
+            </span>
+          </small>
+        </div>
+        <div><small>{{ a.positions|length }} position{{ '' if a.positions|length == 1 else 's' }}</small></div>
+      </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <h3 style="margin-top:2rem;">Top positions across firm</h3>
+  {% if not top %}
+    <p><small>No positions to show.</small></p>
+  {% else %}
+  <table class="tight">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Type</th>
+        <th class="right">Qty</th>
+        <th class="right">Mark</th>
+        <th class="right">Market value</th>
+        <th class="right">Unrealized</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in top %}
+      <tr>
+        <td><strong>{{ p.symbol }}</strong></td>
+        <td>{{ p.sec_type }}</td>
+        <td class="right">{{ p.quantity | num }}</td>
+        <td class="right">{{ p.market_price | num }}</td>
+        <td class="right">{{ p.market_value | money }}</td>
+        <td class="right {{ 'pos' if p.unrealized_pnl >= 0 else 'neg' }}">
+          {{ p.unrealized_pnl | money }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if exposures %}
+  <h3 style="margin-top:2rem;">Exposure by asset class</h3>
+  <table class="tight">
+    <thead><tr><th>Type</th><th class="right">Market value</th></tr></thead>
+    <tbody>
+    {% for sec_type, value in exposures %}
+      <tr>
+        <td>{{ sec_type }}</td>
+        <td class="right">{{ value | money }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>

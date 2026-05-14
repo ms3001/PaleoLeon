@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ account.display_name }} · PaleoLeon{% endblock %}
+{% block body %}
+<hgroup>
+  <h2>{{ account.display_name }}</h2>
+  <p><code>{{ account.account }}</code> · {{ account.currency }}</p>
+</hgroup>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="label">Net liquidation</div>
+    <div class="value">{{ account.net_liquidation | money }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Cash</div>
+    <div class="value">{{ account.total_cash | money }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Gross position value</div>
+    <div class="value">{{ account.gross_position_value | money }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Buying power</div>
+    <div class="value">{{ account.buying_power | money }}</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Unrealized PnL</div>
+    <div class="value {{ 'pos' if account.unrealized_pnl >= 0 else 'neg' }}">
+      {{ account.unrealized_pnl | money }}
+    </div>
+  </div>
+  <div class="kpi">
+    <div class="label">Realized PnL</div>
+    <div class="value {{ 'pos' if account.realized_pnl >= 0 else 'neg' }}">
+      {{ account.realized_pnl | money }}
+    </div>
+  </div>
+</div>
+
+<h3 style="margin-top:2rem;">Positions</h3>
+{% if not account.positions %}
+  <p><small>No open positions.</small></p>
+{% else %}
+<table class="tight">
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Type</th>
+      <th>Ccy</th>
+      <th class="right">Qty</th>
+      <th class="right">Avg cost</th>
+      <th class="right">Mark</th>
+      <th class="right">Market value</th>
+      <th class="right">% of NAV</th>
+      <th class="right">Unrealized</th>
+      <th class="right">Realized</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for p in account.positions %}
+    <tr>
+      <td><strong>{{ p.symbol }}</strong></td>
+      <td>{{ p.sec_type }}</td>
+      <td>{{ p.currency }}</td>
+      <td class="right">{{ p.quantity | num }}</td>
+      <td class="right">{{ p.avg_cost | num }}</td>
+      <td class="right">{{ p.market_price | num }}</td>
+      <td class="right">{{ p.market_value | money }}</td>
+      <td class="right">
+        {% if account.net_liquidation %}
+          {{ (p.market_value / account.net_liquidation * 100) | num }}%
+        {% else %}—{% endif %}
+      </td>
+      <td class="right {{ 'pos' if p.unrealized_pnl >= 0 else 'neg' }}">
+        {{ p.unrealized_pnl | money }}
+      </td>
+      <td class="right {{ 'pos' if p.realized_pnl >= 0 else 'neg' }}">
+        {{ p.realized_pnl | money }}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<p style="margin-top:2rem;"><a href="/">← Back to dashboard</a></p>
+{% endblock %}
