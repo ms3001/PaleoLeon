@@ -1,0 +1,31 @@
+[project]
+name = "paleoleon"
+version = "0.1.0"
+description = "Local dashboard for a small hedge fund: Interactive Brokers + thinkorswim/Schwab."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "jinja2>=3.1",
+    "ib_async>=2.0.1",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+schwab = ["schwab-py>=1.5"]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+paleoleon = "app.main:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Quote · PaleoLeon{% endblock %}
+{% block body %}
+<hgroup>
+  <h2>Live quote</h2>
+  <p>Pulls from Schwab (formerly thinkorswim). Configure credentials below first.</p>
+</hgroup>
+
+<form hx-get="/quote/lookup" hx-target="#quote-result" hx-swap="innerHTML">
+  <label for="symbol">Symbol</label>
+  <input id="symbol" name="symbol" placeholder="AAPL" autocomplete="off">
+  <button type="submit">Get quote</button>
+</form>
+
+<div id="quote-result"></div>
+
+<details style="margin-top:2rem;">
+  <summary>Schwab credentials</summary>
+  <p><small>App key &amp; secret come from <a href="https://developer.schwab.com" target="_blank" rel="noopener">developer.schwab.com</a>.
+  Stored locally at <code>~/.paleoleon/settings.json</code>.</small></p>
+  <form method="post" action="/quote/credentials">
+    <label>App key
+      <input type="text" name="api_key" value="{{ settings.schwab_api_key or '' }}">
+    </label>
+    <label>App secret
+      <input type="password" name="app_secret" value="{{ settings.schwab_app_secret or '' }}">
+    </label>
+    <label>Callback URL
+      <input type="text" name="callback_url" value="{{ settings.schwab_callback_url }}">
+    </label>
+    <button type="submit">Save</button>
+  </form>
+</details>
+{% endblock %}

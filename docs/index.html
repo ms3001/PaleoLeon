@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PaleoLeon — local hedge-fund dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="container">
+  <hgroup>
+    <h1>PaleoLeon</h1>
+    <p>A small, local web dashboard for a hedge fund using Interactive Brokers and thinkorswim / Schwab.</p>
+  </hgroup>
+</header>
+
+<main class="container">
+  <section>
+    <h2>What it does</h2>
+    <ul>
+      <li>Connects to your local <strong>IB Gateway</strong> via the TWS API and reads every sub-account under your Financial Advisor master login.</li>
+      <li>Shows a firm-wide summary: NAV, cash, unrealized &amp; realized PnL, top positions, exposure by asset class.</li>
+      <li>Drill into any individual sub-account for a full position list with % of NAV.</li>
+      <li>Looks up live quotes from Schwab (formerly thinkorswim) for any symbol.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Run it locally</h2>
+    <p>The dashboard runs on your own machine — GitHub Pages can't reach IB Gateway, so this site is just docs.</p>
+    <pre><code># 1. Install
+pip install git+https://github.com/ms3001/paleoleon.git
+
+# 2. Start IB Gateway (paper port 4002 by default) and log in
+#    Enable: Configure → Settings → API → Enable ActiveX and Socket Clients
+
+# 3. Launch the dashboard
+paleoleon</code></pre>
+    <p>
+      <a role="button" href="http://localhost:8000/" target="_blank">Open dashboard (localhost:8000)</a>
+      <a role="button" class="secondary" href="https://github.com/ms3001/paleoleon">View source</a>
+    </p>
+    <p><small>The button works only after you've run <code>paleoleon</code> locally.</small></p>
+  </section>
+
+  <section>
+    <h2>Configuration</h2>
+    <p>Environment variables (all optional):</p>
+    <table>
+      <thead><tr><th>Variable</th><th>Default</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>PALEOLEON_IB_HOST</code></td><td><code>127.0.0.1</code></td><td>IB Gateway host</td></tr>
+        <tr><td><code>PALEOLEON_IB_PORT</code></td><td><code>4002</code></td><td>4001 live · 4002 paper · 7497 TWS paper · 7496 TWS live</td></tr>
+        <tr><td><code>PALEOLEON_IB_CLIENT_ID</code></td><td><code>17</code></td><td>Any unused TWS client id</td></tr>
+        <tr><td><code>PALEOLEON_PORT</code></td><td><code>8000</code></td><td>Dashboard port</td></tr>
+        <tr><td><code>PALEOLEON_REFRESH_SECONDS</code></td><td><code>15</code></td><td>How often the dashboard polls itself</td></tr>
+      </tbody>
+    </table>
+    <p>Account labels and Schwab credentials live in <code>~/.paleoleon/settings.json</code>.</p>
+  </section>
+
+  <section>
+    <h2>Schwab / thinkorswim quotes</h2>
+    <ol>
+      <li>Register an app at <a href="https://developer.schwab.com" target="_blank" rel="noopener">developer.schwab.com</a>.</li>
+      <li>Install the optional dep: <code>pip install 'paleoleon[schwab] @ git+https://github.com/ms3001/paleoleon.git'</code></li>
+      <li>Open <code>/quote</code>, paste the app key &amp; secret, save. First quote lookup will trigger the OAuth browser flow once; the refresh token is then cached locally.</li>
+    </ol>
+  </section>
+</main>
+
+<footer class="container">
+  <small>Local-only · No data leaves your machine · v0.1.0</small>
+</footer>
+</body>
+</html>
