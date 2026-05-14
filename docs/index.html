@@ -17,6 +17,21 @@
 
 <main class="container">
   <section>
+    <h2>Download</h2>
+    <p>One-click launchers. Unzip, then double-click. The first run takes about 30 seconds to set up; later runs are instant.</p>
+    <p>
+      <a role="button" href="https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-mac.zip">Mac</a>
+      <a role="button" href="https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-windows.zip">Windows</a>
+      <a role="button" class="secondary" href="https://github.com/ms3001/PaleoLeon/releases/latest/download/PaleoLeon-linux.zip">Linux</a>
+    </p>
+    <p><small>
+      On <strong>macOS</strong>, right-click the file &rarr; <em>Open</em> the first time to bypass Gatekeeper.<br>
+      On <strong>Windows</strong>, click <em>More info &rarr; Run anyway</em> if SmartScreen warns.<br>
+      You'll still need <a href="https://www.interactivebrokers.com/en/trading/ibgateway-stable.php" target="_blank" rel="noopener">IB Gateway</a> running locally with API access enabled.
+    </small></p>
+  </section>
+
+  <section>
     <h2>What it does</h2>
     <ul>
       <li>Connects to your local <strong>IB Gateway</strong> via the TWS API and reads every sub-account under your Financial Advisor master login.</li>
@@ -27,10 +42,10 @@
   </section>
 
   <section>
-    <h2>Run it locally</h2>
-    <p>The dashboard runs on your own machine — GitHub Pages can't reach IB Gateway, so this site is just docs.</p>
+    <h2>Run from source (advanced)</h2>
+    <p>If you'd rather not use the one-click launcher:</p>
     <pre><code># 1. Install
-pip install git+https://github.com/ms3001/paleoleon.git
+pip install git+https://github.com/ms3001/PaleoLeon.git
 
 # 2. Start IB Gateway (paper port 4002 by default) and log in
 #    Enable: Configure → Settings → API → Enable ActiveX and Socket Clients
@@ -39,9 +54,9 @@ pip install git+https://github.com/ms3001/paleoleon.git
 paleoleon</code></pre>
     <p>
       <a role="button" href="http://localhost:8000/" target="_blank">Open dashboard (localhost:8000)</a>
-      <a role="button" class="secondary" href="https://github.com/ms3001/paleoleon">View source</a>
+      <a role="button" class="secondary" href="https://github.com/ms3001/PaleoLeon">View source</a>
     </p>
-    <p><small>The button works only after you've run <code>paleoleon</code> locally.</small></p>
+    <p><small>The button works only after you've launched the dashboard.</small></p>
   </section>
 
   <section>
