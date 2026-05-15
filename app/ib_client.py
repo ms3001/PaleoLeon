@@ -91,7 +91,13 @@ class IBClient:
         if self._ib.isConnected():
             return True
         try:
-            await self._ib.connectAsync(IB_HOST, IB_PORT, clientId=IB_CLIENT_ID, timeout=8)
+            await self._ib.connectAsync(
+                IB_HOST,
+                IB_PORT,
+                clientId=IB_CLIENT_ID,
+                timeout=8,
+                readonly=True,
+            )
             self._last_error = None
             return True
         except Exception as e:
@@ -102,6 +108,20 @@ class IBClient:
         assert self._ib is not None
         accts = list(self._ib.managedAccounts() or [])
         return [a for a in accts if a]
+
+    async def _ensure_portfolio_subscribed(self, accounts: list[str]) -> None:
+        """`ib.portfolio(account)` reads from a cache that only fills after
+        `reqAccountUpdates(True, account)` has run.  IB only keeps one such
+        subscription active at a time, so we cycle through every managed
+        account to populate the cache; the last one cycled stays live."""
+        assert self._ib is not None
+        for acct in accounts:
+            try:
+                await asyncio.wait_for(
+                    self._ib.reqAccountUpdatesAsync(acct), timeout=8.0
+                )
+            except Exception as e:
+                log.warning("reqAccountUpdates(%s) failed: %s", acct, e)
 
     async def _account_summary(self, account: str) -> AccountSummary:
         assert self._ib is not None
@@ -149,6 +169,7 @@ class IBClient:
         accounts = await self._managed_accounts()
         if only:
             accounts = [a for a in accounts if a in only]
+        await self._ensure_portfolio_subscribed(accounts)
         summaries: list[AccountSummary] = []
         for acct in accounts:
             try:
