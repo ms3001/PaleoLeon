@@ -204,11 +204,28 @@ class IBClient:
 
         await self._ensure_positions_subscribed()
 
+        all_positions = self._ib.positions()
+        accounts_with_positions = sorted({p.account for p in all_positions})
+        log.info(
+            "snapshot: managed=%s, raw_positions=%d, position_accounts=%s",
+            accounts,
+            len(all_positions),
+            accounts_with_positions,
+        )
+
         positions_by_account: dict[str, list] = {a: [] for a in accounts}
-        for ibpos in self._ib.positions():
+        unmatched = 0
+        for ibpos in all_positions:
             if ibpos.account in positions_by_account:
                 positions_by_account[ibpos.account].append(ibpos)
                 self._ensure_mkt_data_subscribed(ibpos.contract)
+            else:
+                unmatched += 1
+        if unmatched:
+            log.warning(
+                "snapshot: %d positions belonged to accounts not in managed list",
+                unmatched,
+            )
 
         summaries: list[AccountSummary] = []
         for acct in accounts:
