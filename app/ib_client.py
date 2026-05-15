@@ -41,6 +41,7 @@ class IBClient:
         self._thread: Optional[threading.Thread] = None
         self._last_error: Optional[str] = None
         self._started = threading.Event()
+        self._subscribed: set[str] = set()
 
     def start(self) -> None:
         if IB is None:
@@ -81,10 +82,10 @@ class IBClient:
     def last_error(self) -> Optional[str]:
         return self._last_error
 
-    def _submit(self, coro):
+    def _submit(self, coro, timeout: float = 60.0):
         assert self._loop is not None
         fut = asyncio.run_coroutine_threadsafe(coro, self._loop)
-        return fut.result(timeout=15)
+        return fut.result(timeout=timeout)
 
     async def _ensure_connected(self) -> bool:
         assert self._ib is not None
@@ -99,6 +100,7 @@ class IBClient:
                 readonly=True,
             )
             self._last_error = None
+            self._subscribed.clear()
             return True
         except Exception as e:
             self._last_error = f"{type(e).__name__}: {e}"
@@ -112,14 +114,18 @@ class IBClient:
     async def _ensure_portfolio_subscribed(self, accounts: list[str]) -> None:
         """`ib.portfolio(account)` reads from a cache that only fills after
         `reqAccountUpdates(True, account)` has run.  IB only keeps one such
-        subscription active at a time, so we cycle through every managed
-        account to populate the cache; the last one cycled stays live."""
+        subscription active at a time, so on first contact we cycle every
+        managed account to populate the cache; the last one cycled stays
+        live and gets streaming updates."""
         assert self._ib is not None
         for acct in accounts:
+            if acct in self._subscribed:
+                continue
             try:
                 await asyncio.wait_for(
-                    self._ib.reqAccountUpdatesAsync(acct), timeout=8.0
+                    self._ib.reqAccountUpdatesAsync(acct), timeout=4.0
                 )
+                self._subscribed.add(acct)
             except Exception as e:
                 log.warning("reqAccountUpdates(%s) failed: %s", acct, e)
 
