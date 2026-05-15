@@ -92,6 +92,13 @@ def watchlist_partial(request: Request):
     return _render_table(request)
 
 
+@router.get("/partials/watchlist/rows", response_class=HTMLResponse)
+def watchlist_rows_partial(request: Request):
+    return templates.TemplateResponse(
+        request, "partials/watchlist_rows.html", _context()
+    )
+
+
 @router.get("/watchlist/search", response_class=HTMLResponse)
 def search(request: Request, q: str = ""):
     settings = store.load()

@@ -1,7 +1,4 @@
-<div id="watchlist"
-     hx-get="/partials/watchlist"
-     hx-trigger="every {{ refresh_seconds }}s"
-     hx-swap="outerHTML">
+<div id="watchlist">
 
   <div class="watchlist-header">
     <label class="scope-label">
@@ -23,57 +20,7 @@
     <small class="muted">Updated {{ taken_at | dt }} · refreshes every {{ refresh_seconds }}s</small>
   </div>
 
-  <table class="tight watchlist-table">
-    <thead>
-      <tr>
-        <th class="reorder-col"></th>
-        <th>Symbol</th>
-        <th>Type</th>
-        <th>Ccy</th>
-        <th class="right">Quote</th>
-        <th class="right">Qty</th>
-        <th class="delete-col"></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in rows %}
-      <tr {% if not r.in_scope %}class="out-of-scope"{% endif %}>
-        <td class="reorder-col">
-          <button class="icon-btn"
-                  hx-post="/watchlist/move"
-                  hx-vals='{"index": {{ loop.index0 }}, "dir": "up"}'
-                  hx-target="#watchlist"
-                  hx-swap="outerHTML"
-                  aria-label="Move up"
-                  {% if loop.first %}disabled{% endif %}>&#9650;</button>
-          <button class="icon-btn"
-                  hx-post="/watchlist/move"
-                  hx-vals='{"index": {{ loop.index0 }}, "dir": "down"}'
-                  hx-target="#watchlist"
-                  hx-swap="outerHTML"
-                  aria-label="Move down"
-                  {% if loop.last %}disabled{% endif %}>&#9660;</button>
-        </td>
-        <td><strong>{{ r.symbol }}</strong></td>
-        <td>{{ r.sec_type }}</td>
-        <td>{{ r.currency }}</td>
-        <td class="right">{% if r.price is not none %}{{ r.price | num }}{% else %}&mdash;{% endif %}</td>
-        <td class="right">{{ r.qty | num }}</td>
-        <td class="delete-col">
-          <button class="icon-btn"
-                  hx-post="/watchlist/delete"
-                  hx-vals='{"index": {{ loop.index0 }}}'
-                  hx-target="#watchlist"
-                  hx-swap="outerHTML"
-                  aria-label="Remove">&times;</button>
-        </td>
-      </tr>
-      {% endfor %}
-      {% if not rows %}
-      <tr><td colspan="7"><small class="muted">No instruments yet &mdash; start typing below.</small></td></tr>
-      {% endif %}
-    </tbody>
-  </table>
+  {% include "partials/watchlist_rows.html" %}
 
   <div class="search-box">
     <input type="search" name="q"
