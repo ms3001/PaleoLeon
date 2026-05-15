@@ -1,9 +1,8 @@
 # PaleoLeon
 
-A small, local-only web dashboard for a hedge fund using Interactive Brokers and thinkorswim / Schwab.
+A small, local-only watchlist for a hedge fund using Interactive Brokers.
 
-- **IB**: connects to a running IB Gateway via the TWS API (`ib_async`) and reads every sub-account under your Financial Advisor master login.
-- **Schwab / thinkorswim** (Phase 2): live quote lookup via `schwab-py`.
+Connects to a running IB Gateway via the TWS API (`ib_async`), reads every sub-account under your Financial Advisor master login, and lets you build a focused table of instruments you own with live quotes and quantities.
 
 The app runs entirely on `localhost` — no auth, no TLS, nothing leaves the machine.
 
@@ -22,14 +21,15 @@ Unzip and double-click. First run takes ~30 s to set up (downloads [`uv`](https:
 
 You also need [IB Gateway](https://www.interactivebrokers.com/en/trading/ibgateway-stable.php) running locally with API access enabled (Configure → Settings → API → **Enable ActiveX and Socket Clients**, port 4002 for paper / 4001 for live).
 
-## Pages
+## How it works
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Firm summary: NAV, cash, PnL, top positions, exposure |
-| `/accounts/{id}` | Drill-in for one sub-account |
-| `/settings/accounts` | Pick which sub-accounts show, give them labels |
-| `/quote` | Live quote from Schwab (Phase 2; requires setup below) |
+The single page (`/`) shows:
+
+- A **scope selector** — all sub-accounts, or one specific account.
+- An **autocomplete search** that suggests instruments **owned within the chosen scope** as you type.
+- A **table** of the instruments you've added, each row showing its live quote and the quantity held within the chosen scope.
+
+You can add rows, reorder them (▲/▼), and delete them. The watchlist persists to `~/.paleoleon/settings.json` so it survives restarts.
 
 ## Configuration
 
@@ -44,13 +44,7 @@ Environment variables (all optional):
 | `PALEOLEON_REFRESH_SECONDS` | `15` | Dashboard auto-refresh |
 | `PALEOLEON_HOME` | `~/.paleoleon` | Settings & Schwab token directory |
 
-Account labels and Schwab credentials persist to `~/.paleoleon/settings.json`.
-
-## Schwab / thinkorswim quotes (Phase 2)
-
-1. Register an app at <https://developer.schwab.com>.
-2. Open `/quote` in the dashboard, paste the app key + secret, save.
-3. First quote lookup triggers the OAuth flow once; the refresh token is cached at `~/.paleoleon/schwab_token.json`.
+Scope choice and watchlist contents persist to `~/.paleoleon/settings.json`.
 
 ## Run from source (advanced)
 
@@ -69,7 +63,7 @@ Open <http://localhost:8000>.
 ```bash
 git clone https://github.com/ms3001/PaleoLeon.git
 cd PaleoLeon
-pip install -e '.[dev,schwab]'
+pip install -e '.[dev]'
 pytest
 ruff check .
 ```

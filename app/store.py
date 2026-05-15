@@ -3,36 +3,41 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from threading import Lock
-from typing import Optional
 
 from .config import SETTINGS_DIR, SETTINGS_FILE
 
 
 @dataclass
 class Settings:
-    visible_accounts: list[str] = field(default_factory=list)
-    labels: dict[str, str] = field(default_factory=dict)
-    schwab_api_key: Optional[str] = None
-    schwab_app_secret: Optional[str] = None
-    schwab_callback_url: str = "https://127.0.0.1:8182"
+    scope: str = "all"
+    watchlist: list[dict] = field(default_factory=list)
 
     def to_json(self) -> dict:
         return {
-            "visible_accounts": list(self.visible_accounts),
-            "labels": dict(self.labels),
-            "schwab_api_key": self.schwab_api_key,
-            "schwab_app_secret": self.schwab_app_secret,
-            "schwab_callback_url": self.schwab_callback_url,
+            "scope": self.scope,
+            "watchlist": list(self.watchlist),
         }
 
     @classmethod
     def from_json(cls, data: dict) -> "Settings":
+        wl = data.get("watchlist") or []
+        clean: list[dict] = []
+        for item in wl:
+            if not isinstance(item, dict):
+                continue
+            sym = (item.get("symbol") or "").strip()
+            if not sym:
+                continue
+            clean.append(
+                {
+                    "symbol": sym,
+                    "sec_type": (item.get("sec_type") or "STK").strip() or "STK",
+                    "currency": (item.get("currency") or "USD").strip() or "USD",
+                }
+            )
         return cls(
-            visible_accounts=list(data.get("visible_accounts") or []),
-            labels=dict(data.get("labels") or {}),
-            schwab_api_key=data.get("schwab_api_key"),
-            schwab_app_secret=data.get("schwab_app_secret"),
-            schwab_callback_url=data.get("schwab_callback_url") or "https://127.0.0.1:8182",
+            scope=(data.get("scope") or "all").strip() or "all",
+            watchlist=clean,
         )
 
 

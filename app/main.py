@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import APP_HOST, APP_PORT
 from .ib_client import client
-from .routes import accounts, dashboard, quote
+from .routes import watchlist
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("paleoleon")
@@ -29,9 +29,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="PaleoLeon", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-app.include_router(dashboard.router)
-app.include_router(accounts.router)
-app.include_router(quote.router)
+app.include_router(watchlist.router)
 
 
 def run() -> None:

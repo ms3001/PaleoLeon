@@ -1,0 +1,88 @@
+<div id="watchlist"
+     hx-get="/partials/watchlist"
+     hx-trigger="every {{ refresh_seconds }}s"
+     hx-swap="outerHTML">
+
+  <div class="watchlist-header">
+    <label class="scope-label">
+      <span>Scope</span>
+      <select name="scope"
+              hx-post="/watchlist/scope"
+              hx-trigger="change"
+              hx-include="this"
+              hx-target="#watchlist"
+              hx-swap="outerHTML">
+        <option value="all" {% if scope == 'all' %}selected{% endif %}>All accounts</option>
+        {% for a in accounts %}
+        <option value="{{ a.account }}" {% if scope == a.account %}selected{% endif %}>
+          {{ a.account }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <small class="muted">Updated {{ taken_at | dt }} · refreshes every {{ refresh_seconds }}s</small>
+  </div>
+
+  <table class="tight watchlist-table">
+    <thead>
+      <tr>
+        <th class="reorder-col"></th>
+        <th>Symbol</th>
+        <th>Type</th>
+        <th>Ccy</th>
+        <th class="right">Quote</th>
+        <th class="right">Qty</th>
+        <th class="delete-col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr {% if not r.in_scope %}class="out-of-scope"{% endif %}>
+        <td class="reorder-col">
+          <button class="icon-btn"
+                  hx-post="/watchlist/move"
+                  hx-vals='{"index": {{ loop.index0 }}, "dir": "up"}'
+                  hx-target="#watchlist"
+                  hx-swap="outerHTML"
+                  aria-label="Move up"
+                  {% if loop.first %}disabled{% endif %}>&#9650;</button>
+          <button class="icon-btn"
+                  hx-post="/watchlist/move"
+                  hx-vals='{"index": {{ loop.index0 }}, "dir": "down"}'
+                  hx-target="#watchlist"
+                  hx-swap="outerHTML"
+                  aria-label="Move down"
+                  {% if loop.last %}disabled{% endif %}>&#9660;</button>
+        </td>
+        <td><strong>{{ r.symbol }}</strong></td>
+        <td>{{ r.sec_type }}</td>
+        <td>{{ r.currency }}</td>
+        <td class="right">{% if r.price is not none %}{{ r.price | num }}{% else %}&mdash;{% endif %}</td>
+        <td class="right">{{ r.qty | num }}</td>
+        <td class="delete-col">
+          <button class="icon-btn"
+                  hx-post="/watchlist/delete"
+                  hx-vals='{"index": {{ loop.index0 }}}'
+                  hx-target="#watchlist"
+                  hx-swap="outerHTML"
+                  aria-label="Remove">&times;</button>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not rows %}
+      <tr><td colspan="7"><small class="muted">No instruments yet &mdash; start typing below.</small></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <div class="search-box">
+    <input type="search" name="q"
+           placeholder="Type a symbol you own&hellip;"
+           autocomplete="off"
+           hx-get="/watchlist/search"
+           hx-trigger="input changed delay:200ms, focus"
+           hx-target="#search-results"
+           hx-swap="innerHTML">
+    <div id="search-results"></div>
+  </div>
+</div>

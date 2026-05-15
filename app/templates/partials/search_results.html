@@ -1,0 +1,19 @@
+{% if matches %}
+<ul class="search-results">
+  {% for m in matches %}
+  <li>
+    <form hx-post="/watchlist/add" hx-target="#watchlist" hx-swap="outerHTML">
+      <input type="hidden" name="symbol" value="{{ m.symbol }}">
+      <input type="hidden" name="sec_type" value="{{ m.sec_type }}">
+      <input type="hidden" name="currency" value="{{ m.currency }}">
+      <button type="submit" class="search-result-btn">
+        <strong>{{ m.symbol }}</strong>
+        <small>{{ m.sec_type }} &middot; {{ m.currency }}</small>
+      </button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+{% elif query %}
+<p class="search-empty"><small>No owned instruments match &ldquo;{{ query }}&rdquo;.</small></p>
+{% endif %}

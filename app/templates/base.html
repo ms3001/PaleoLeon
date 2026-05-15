@@ -12,14 +12,7 @@
 <body>
   <header class="container">
     <nav>
-      <ul>
-        <li><strong><a href="/" class="contrast">PaleoLeon</a></strong></li>
-      </ul>
-      <ul>
-        <li><a href="/">Dashboard</a></li>
-        <li><a href="/settings/accounts">Accounts</a></li>
-        <li><a href="/quote">Quote</a></li>
-      </ul>
+      <ul><li><strong><a href="/" class="contrast">PaleoLeon</a></strong></li></ul>
     </nav>
     {% if not connected %}
     <article class="banner-warn">
@@ -32,8 +25,5 @@
   <main class="container">
     {% block body %}{% endblock %}
   </main>
-  <footer class="container">
-    <small>Snapshot {{ taken_at|default('—') }} · Local only · v0.1.0</small>
-  </footer>
 </body>
 </html>
